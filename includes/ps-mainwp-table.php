@@ -7,7 +7,7 @@ if( !class_exists( 'Post_SMTP_MWP_Table' ) ):
 class Post_SMTP_MWP_Table {
 	
 	public function __construct() {
-	
+		
 		add_action( 'post_smtp_email_logs_table_header', array( $this, 'email_logs_table_header' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ) );
 		add_filter( 'post_smtp_get_logs_query_after_table', array( $this, 'query_join' ), 10, 2 );
@@ -114,24 +114,28 @@ class Post_SMTP_MWP_Table {
 	 */
 	public function filter_row( $row ) {
 		
-		$url = admin_url( 'admin.php?page=postman_email_log' );
+		if( class_exists( 'MainWP_DB' ) ) {
+			
+			$url = admin_url( 'admin.php?page=postman_email_log' );
 
-		if( $row->site_id && $row->site_id != 'main_site' ) {
-		
-			$url .= "&site_id={$row->site_id}";
-			$website = MainWP_DB::instance()->get_website_by_id( $row->site_id );
-			$row->site_id = "<a href='{$url}' class='ps-mainwp-site'>{$website->name}</a>";
-		}
-		
-		if( $row->site_id == 'main_site' ) {
+			if( $row->site_id && $row->site_id != 'main_site' ) {
+
+				$url .= "&site_id={$row->site_id}";
+				$website = MainWP_DB::instance()->get_website_by_id( $row->site_id );
+				$row->site_id = "<a href='{$url}' class='ps-mainwp-site'>{$website->name}</a>";
+			}
+
+			if( $row->site_id == 'main_site' ) {
+
+				$url .= "&site_id=main_site";
+				$row->site_id = get_bloginfo( 'name' ) ? get_bloginfo( 'name' ) : 'Main Site';
+				$row->site_id = "<a href='{$url}' class='ps-mainwp-site'>{$row->site_id}</a>";
+
+			}
+
+			return $row;
 			
-			$url .= "&site_id=main_site";
-			$row->site_id = get_bloginfo( 'name' ) ? get_bloginfo( 'name' ) : 'Main Site';
-			$row->site_id = "<a href='{$url}' class='ps-mainwp-site'>{$row->site_id}</a>";
-			
 		}
-		
-		return $row;
 		
 	}
 	
@@ -165,52 +169,56 @@ class Post_SMTP_MWP_Table {
 	 */
 	public function get_sites() {
 		
-		$site_ids = array();
-		$is_staging = 'no';
-		$staging_view = $this->is_staging_view();
-		$saved_sites = get_option( 'postman_mainwp_sites' );
-		
-		if ( $staging_view ) {
+		if( class_exists( 'MainWP_DB' ) ) {
 			
-			$is_staging = 'yes';
+			$site_ids = array();
+			$is_staging = 'no';
+			$staging_view = $this->is_staging_view();
+			$saved_sites = get_option( 'postman_mainwp_sites' );
+
+			if ( $staging_view ) {
+
+				$is_staging = 'yes';
+
+			}
+
+			$websites = MainWP_DB::instance()->query( MainWP_DB::instance()->get_sql_websites_for_current_user( false, null, 'wp_sync.dtsSync DESC, wp.url ASC', false, false, null, false, array(), $is_staging ) );
+
+		  $cntr = 0;
+			if ( is_array( $websites ) ) {
+
+				$count = count( $websites );
+
+				for ( $i = 0; $i < $count; $i ++ ) {
+
+					$website = $websites[ $i ];
+
+					if ( '' == $website->sync_errors ) {
+
+						$cntr ++;
+						$site_ids[$website->id] = $website->name;
+
+					}
+				}
+			} 
+			elseif ( false !== $websites ) {
+
+				while ( $website = MainWP_DB::fetch_object( $websites ) ) {
+
+					if ( '' == $website->sync_errors ) {
+
+						$cntr ++;
+						$site_ids[$website->id] = $website->name;
+
+					}
+
+				}
+
+			}
+
+			return empty( $site_ids ) ? false : $site_ids;
 			
 		}
-		
-		$websites = MainWP_DB::instance()->query( MainWP_DB::instance()->get_sql_websites_for_current_user( false, null, 'wp_sync.dtsSync DESC, wp.url ASC', false, false, null, false, array(), $is_staging ) );
-		
-      $cntr = 0;
-		if ( is_array( $websites ) ) {
-			
-			$count = count( $websites );
-			
-			for ( $i = 0; $i < $count; $i ++ ) {
-				
-				$website = $websites[ $i ];
-				
-				if ( '' == $website->sync_errors ) {
-					
-					$cntr ++;
-					$site_ids[$website->id] = $website->name;
-					
-				}
-			}
-		} 
-		elseif ( false !== $websites ) {
-			
-			while ( $website = MainWP_DB::fetch_object( $websites ) ) {
-				
-				if ( '' == $website->sync_errors ) {
-					
-					$cntr ++;
-					$site_ids[$website->id] = $website->name;
-				
-				}
-				
-			}
-			
-		}
-		
-		return empty( $site_ids ) ? false : $site_ids;
 		
 	}
 	
