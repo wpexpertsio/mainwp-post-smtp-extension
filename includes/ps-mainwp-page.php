@@ -91,7 +91,40 @@ class Post_SMTP_MWP_Page {
 			$name = $this->get_option( $saved_sites, $id, 'name' );
 			$reply_to = $this->get_option( $saved_sites, $id, 'reply_to' );
 			$enabled_on_child_site = checked( $this->get_option( $saved_sites, $id, 'enable_on_child_site' ), 1, false );
-
+			$website = MainWP_DB::instance()->get_website_by_id( $id );
+			
+			//Lets find out if Post SMTP is active on child site or not.
+			if( isset( $website->plugins ) ) {
+				
+				$plugins = json_decode( $website->plugins );
+				$has_postsmtp = false;
+				
+				foreach( $plugins as $plugin ) {
+					
+					if( $plugin->name == 'Post SMTP' && $plugin->active == 1 ) {
+						
+						$has_postsmtp = true;
+						break;
+						
+					}
+					else {
+						
+						continue;
+						
+					}
+					
+					break;
+					
+				}
+				
+			}
+			
+			if( !$has_postsmtp ) {
+				
+				continue;
+				
+			}
+			
 			?>
 
 			<div class="post-smtp-mainwp-site">
