@@ -169,56 +169,18 @@ class Post_SMTP_MWP_Table {
 	 */
 	public function get_sites() {
 		
-		if( class_exists( 'MainWP_DB' ) ) {
+		$childEnabled = apply_filters( 'mainwp_extension_enabled_check', __FILE__ );
+		$childKey = $childEnabled['key'];
+		$sites = apply_filters( 'mainwp_getsites', __FILE__, $childKey );
+		$site_ids = array();
+		
+		foreach( $sites as $site ) {
 			
-			$site_ids = array();
-			$is_staging = 'no';
-			$staging_view = $this->is_staging_view();
-			$saved_sites = get_option( 'postman_mainwp_sites' );
-
-			if ( $staging_view ) {
-
-				$is_staging = 'yes';
-
-			}
-
-			$websites = MainWP_DB::instance()->query( MainWP_DB::instance()->get_sql_websites_for_current_user( false, null, 'wp_sync.dtsSync DESC, wp.url ASC', false, false, null, false, array(), $is_staging ) );
-
-		  $cntr = 0;
-			if ( is_array( $websites ) ) {
-
-				$count = count( $websites );
-
-				for ( $i = 0; $i < $count; $i ++ ) {
-
-					$website = $websites[ $i ];
-
-					if ( '' == $website->sync_errors ) {
-
-						$cntr ++;
-						$site_ids[$website->id] = $website->name;
-
-					}
-				}
-			} 
-			elseif ( false !== $websites ) {
-
-				while ( $website = MainWP_DB::fetch_object( $websites ) ) {
-
-					if ( '' == $website->sync_errors ) {
-
-						$cntr ++;
-						$site_ids[$website->id] = $website->name;
-
-					}
-
-				}
-
-			}
-
-			return empty( $site_ids ) ? false : $site_ids;
+			$site_ids[$site['id']] = $site['name'];
 			
 		}
+
+		return empty( $site_ids ) ? false : $site_ids;
 		
 	}
 	

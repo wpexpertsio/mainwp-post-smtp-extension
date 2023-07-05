@@ -54,52 +54,16 @@ class Post_SMTP_MWP_Page {
      */
 	public function page() {
 		
+		$childEnabled = apply_filters( 'mainwp_extension_enabled_check', __FILE__ );
+		$childKey = $childEnabled['key'];
+		$sites = apply_filters('mainwp_getsites', __FILE__, $childKey);
+		
 		do_action( 'mainwp_pageheader_extensions', __FILE__ );
 		
 		$site_ids = array();
 		$is_staging = 'no';
 		$staging_view = get_user_option( 'mainwp_staging_options_updates_view' ) == 'staging' ? true : false;
 		$saved_sites = get_option( 'postman_mainwp_sites' );
-
-		if ( $staging_view ) {
-			
-			$is_staging = 'yes';
-			
-		}
-		
-		$websites = MainWP_DB::instance()->query( MainWP_DB::instance()->get_sql_websites_for_current_user( false, null, 'wp_sync.dtsSync DESC, wp.url ASC', false, false, null, false, array(), $is_staging ) );
-		
-      $cntr = 0;
-		if ( is_array( $websites ) ) {
-			
-			$count = count( $websites );
-			
-			for ( $i = 0; $i < $count; $i ++ ) {
-				
-				$website = $websites[ $i ];
-				
-				if ( '' == $website->sync_errors ) {
-					
-					$cntr ++;
-					$site_ids[] = $website->id;
-					
-				}
-			}
-		} 
-		elseif ( false !== $websites ) {
-			
-			while ( $website = MainWP_DB::fetch_object( $websites ) ) {
-				
-				if ( '' == $website->sync_errors ) {
-					
-					$cntr ++;
-					$site_ids[] = $website->id;
-				
-				}
-				
-			}
-			
-		}
 		
 		?>
 
@@ -120,9 +84,9 @@ class Post_SMTP_MWP_Page {
 				</div>
 		<?php
 		
-		foreach( $site_ids as $id ) {
+		foreach( $sites as $site ) {
 			
-			$website = MainWP_DB::instance()->get_website_by_id( $id );
+			$id = $site['id'];
 			$email_address = $this->get_option( $saved_sites, $id, 'email_address' ); 
 			$name = $this->get_option( $saved_sites, $id, 'name' );
 			$reply_to = $this->get_option( $saved_sites, $id, 'reply_to' );
@@ -138,7 +102,7 @@ class Post_SMTP_MWP_Page {
 							<input type="checkbox" <?php echo esc_attr( $enabled_on_child_site ); ?> value="1" class="enable-on-child-site" data-id="<?php echo esc_attr( $id ); ?>" name="<?php echo 'enable_on_child_site['.esc_attr( $id ).']'; ?>" />
 							<span class="slider round"></span>
 						</label> 
-						<?php echo esc_attr( $website->name ); ?><span class="ps-error"></span><span class="spinner"></span></div>
+						<?php echo esc_attr( $site['name'] ); ?><span class="ps-error"></span><span class="spinner"></span></div>
 					<div class="content">
 						<table>
 							<tr>
