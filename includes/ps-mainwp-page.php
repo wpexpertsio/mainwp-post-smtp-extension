@@ -289,7 +289,6 @@ class Post_SMTP_MWP_Page {
 					"{$site_url}wp-json/psmwp/v1/activate-from-mainwp",
 					array(
 						'headers'	=>	array(
-							'Site-URL'	=>	$site_url,
 							'API-Key'	=>	$api_key
 						),
 						'body'		=>	array(
