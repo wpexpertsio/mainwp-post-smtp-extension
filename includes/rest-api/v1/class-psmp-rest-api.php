@@ -82,71 +82,92 @@ class Post_SMTP_MWP_Rest_API {
 
 
     public function send_email( WP_REST_Request $request ) {
-
+		
 		$result = false;
-        $params = $request->get_params();
 		$headers = $request->get_headers();
 		$api_key = empty( $request->get_header( 'api_key' ) ) ? '' : sanitize_text_field( $request->get_header( 'api_key' ) );
 		$site_url = empty( $request->get_header( 'site_url' ) ) ? '' : sanitize_url( $request->get_header( 'site_url' ) );
 
-		//Lets Validate :D
-		if( $this->validate( $api_key, $site_url ) ) {
+		if ( 
+			isset( $_GET['actionnonce'] ) 
+			&& 
+			isset( $_GET['pingnonce'] )
+			&&
+			$this->validate( $api_key, $site_url )
+		) {
 			
-			//Override settings if checked in MainWP -> Extensions -> Post SMTP -> Enable Individual Settings
-			$this->override_settings();
-			
-			$this->site_url = $site_url;
-			$to = isset( $params['to'] ) ? $params['to'] : '';
-			$subject = isset( $params['subject'] ) ? $params['subject'] : '';
-			$message = isset( $params['message'] ) ? $params['message'] : '';
-			$headers = isset( $params['headers'] ) ? $params['headers'] : '';
-			$attachments = isset( $params['attachments'] ) ? $params['attachments'] : array();
-			
-			//Lets upload files on server
-			if( !empty( $attachments ) ) {
+			if( apply_filters( 'mainwp_verify_ping_nonce', false, $_GET['pingnonce'], $this->site_id ) ) {
 				
-				$_attachments = $attachments;
-				$attachments = array();
-				foreach( $_attachments as $key => $attachment ) {
-					
-					// Get the contents of the file
-					$file_info = pathinfo( $key );
-					$absolute_path = strstr( $file_info['dirname'], 'uploads/' );
-					$absolute_path = str_replace( 'uploads', '', $absolute_path );
-					$absolute_path = '/';
-					
-					// Define the filename and destination directory
-					$filename = $file_info["basename"];
-					$upload_dir = wp_upload_dir();
+				$params = array(
+					'actionnonce' => $_GET['actionnonce'],
+				);
+				$childEnabled = apply_filters( 'mainwp_extension_enabled_check', __FILE__ );
+				$childKey = $childEnabled['key'];
+				$result = apply_filters( 'mainwp_fetchurlverifyaction', __FILE__, $childKey, $this->site_id, $params );
 
-					// Create the file in the upload directory
-					$file_path = $upload_dir['path'] . $absolute_path . $filename;
-					$file_url = $upload_dir['url'] . $absolute_path . $filename;
-					$wp_filetype = wp_check_filetype( $filename, null );
-					$file_data = wp_upload_bits( $filename, null, $attachment );
+				//All set, let's send email xD
+				if( is_array( $result ) && !empty( $result['success'] ) ){
+					
+					//Override settings if checked in MainWP -> Extensions -> Post SMTP -> Enable Individual Settings
+					$this->override_settings();
 
-					// Check if the file was successfully uploaded
-					if ( ! $file_data['error'] ) {
-						// The file was uploaded successfully
-						// Insert the file into the media library
-						$attachment = array(
-							'post_mime_type'	=> $wp_filetype['type'],
-							'post_title'		=> sanitize_file_name( $filename ),
-							'post_content'		=> '',
-							'post_status'		=> 'inherit'
-						);
-						
-						$attachment_id = wp_insert_attachment( $attachment, $file_data['file'] );
-		
-						$attachments[] = $file_path;
-						
+					$this->site_url = $site_url;
+					$params = $request->get_params();
+					$to = isset( $params['to'] ) ? $params['to'] : '';
+					$subject = isset( $params['subject'] ) ? $params['subject'] : '';
+					$message = isset( $params['message'] ) ? $params['message'] : '';
+					$headers = isset( $params['headers'] ) ? $params['headers'] : '';
+					$attachments = isset( $params['attachments'] ) ? $params['attachments'] : array();
+
+					//Lets upload files on server
+					if( !empty( $attachments ) ) {
+
+						$_attachments = $attachments;
+						$attachments = array();
+						foreach( $_attachments as $key => $attachment ) {
+
+							// Get the contents of the file
+							$file_info = pathinfo( $key );
+							$absolute_path = strstr( $file_info['dirname'], 'uploads/' );
+							$absolute_path = str_replace( 'uploads', '', $absolute_path );
+							$absolute_path = '/';
+
+							// Define the filename and destination directory
+							$filename = $file_info["basename"];
+							$upload_dir = wp_upload_dir();
+
+							// Create the file in the upload directory
+							$file_path = $upload_dir['path'] . $absolute_path . $filename;
+							$file_url = $upload_dir['url'] . $absolute_path . $filename;
+							$wp_filetype = wp_check_filetype( $filename, null );
+							$file_data = wp_upload_bits( $filename, null, $attachment );
+
+							// Check if the file was successfully uploaded
+							if ( ! $file_data['error'] ) {
+								// The file was uploaded successfully
+								// Insert the file into the media library
+								$attachment = array(
+									'post_mime_type'	=> $wp_filetype['type'],
+									'post_title'		=> sanitize_file_name( $filename ),
+									'post_content'		=> '',
+									'post_status'		=> 'inherit'
+								);
+
+								$attachment_id = wp_insert_attachment( $attachment, $file_data['file'] );
+
+								$attachments[] = $file_path;
+
+							}
+
+						}
+
 					}
+
+					$result = wp_mail( $to, $subject, $message, $headers, $attachments );
 					
 				}
 				
-			}
-
-			$result = wp_mail( $to, $subject, $message, $headers, $attachments );
+			}    
 			
 		}
         
