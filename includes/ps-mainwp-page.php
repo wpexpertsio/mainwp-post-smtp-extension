@@ -1,9 +1,6 @@
 <?php
 
 use MainWP\Dashboard\MainWP_DB;
-use MainWP\Dashboard\MainWP_Connect;
-use MainWP\Dashboard\MainWP_Logger;
-use MainWP\Dashboard\MainWP_Exception;
 
 if( !class_exists( 'Post_SMTP_MWP_Page' ) ):
 
@@ -56,7 +53,20 @@ class Post_SMTP_MWP_Page {
 		
 		$childEnabled = apply_filters( 'mainwp_extension_enabled_check', __FILE__ );
 		$childKey = $childEnabled['key'];
-		$sites = apply_filters('mainwp_getsites', __FILE__, $childKey);
+		$sites = apply_filters( 'mainwp_getsites', __FILE__, $childKey );
+		
+		$sites_ids = array();
+		if ( is_array( $sites ) ) {
+			foreach ( $sites as $website ) {
+				$sites_ids[] = $website['id'];
+			}
+		}
+
+		$option = array(
+			'plugins'         => true,
+		);
+		
+		$dbwebsites = apply_filters( 'mainwp_getdbsites', __FILE__, $childKey, $sites_ids, array(), $option );
 		
 		do_action( 'mainwp_pageheader_extensions', __FILE__ );
 		
@@ -84,19 +94,18 @@ class Post_SMTP_MWP_Page {
 				</div>
 		<?php
 		
-		foreach( $sites as $site ) {
+		foreach( $dbwebsites as $site ) {
 			
-			$id = $site['id'];
+			$id = $site->id;
 			$email_address = $this->get_option( $saved_sites, $id, 'email_address' ); 
 			$name = $this->get_option( $saved_sites, $id, 'name' );
 			$reply_to = $this->get_option( $saved_sites, $id, 'reply_to' );
 			$enabled_on_child_site = checked( $this->get_option( $saved_sites, $id, 'enable_on_child_site' ), 1, false );
-			$website = MainWP_DB::instance()->get_website_by_id( $id );
 			
 			//Lets find out if Post SMTP is active on child site or not.
-			if( isset( $website->plugins ) ) {
+			if( isset( $site->plugins ) ) {
 				
-				$plugins = json_decode( $website->plugins );
+				$plugins = json_decode( $site->plugins );
 				$has_postsmtp = false;
 				
 				foreach( $plugins as $plugin ) {
@@ -135,7 +144,7 @@ class Post_SMTP_MWP_Page {
 							<input type="checkbox" <?php echo esc_attr( $enabled_on_child_site ); ?> value="1" class="enable-on-child-site" data-id="<?php echo esc_attr( $id ); ?>" name="<?php echo 'enable_on_child_site['.esc_attr( $id ).']'; ?>" />
 							<span class="slider round"></span>
 						</label> 
-						<?php echo esc_attr( $site['name'] ); ?><span class="ps-error"></span><span class="spinner"></span></div>
+						<?php echo esc_attr( $site->name ); ?><span class="ps-error"></span><span class="spinner"></span></div>
 					<div class="content">
 						<table>
 							<tr>
@@ -283,8 +292,6 @@ class Post_SMTP_MWP_Page {
 			
 			try {
 				
-				MainWP_Logger::instance()->debug_for_website( $website, 'post_smtp', "{$text} Post SMTP" );
-				
 				$response = wp_remote_post(
 					"{$site_url}wp-json/psmwp/v1/activate-from-mainwp",
 					array(
@@ -307,16 +314,12 @@ class Post_SMTP_MWP_Page {
 					
 					update_option( 'postman_mainwp_sites', $sites );
 					
-					MainWP_Logger::instance()->debug_for_website( $website, 'post_smtp', "Post SMTP activated" );
-					
 					wp_send_json_success(
 						array(),
 						200
 					);
 					
 				}
-
-				MainWP_Logger::instance()->debug_for_website( $website, 'post_smtp', "Post SMTP error: {$message}" );
 				
 				wp_send_json_error(
 					array(
@@ -325,7 +328,7 @@ class Post_SMTP_MWP_Page {
 					404
 				);
 
-			} catch( MainWP_Exception $e ) {
+			} catch( Exception $e ) {
 
 				wp_send_json_error(
 					array(
