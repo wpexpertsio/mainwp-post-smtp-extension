@@ -1,7 +1,5 @@
 <?php
 
-use MainWP\Dashboard\MainWP_DB;
-
 if( !class_exists( 'Post_SMTP_MWP_Table' ) ):
 
 class Post_SMTP_MWP_Table {
@@ -114,28 +112,29 @@ class Post_SMTP_MWP_Table {
 	 */
 	public function filter_row( $row ) {
 		
-		if( class_exists( 'MainWP_DB' ) ) {
+		$childEnabled = apply_filters( 'mainwp_extension_enabled_check', __FILE__ );
+		$childKey = $childEnabled['key'];
+
+		$dbwebsites = apply_filters( 'mainwp_getdbsites', __FILE__, $childKey, array( $row->site_id ), array(), $option );
+		$website = $dbwebsites[$row->site_id];
 			
-			$url = admin_url( 'admin.php?page=postman_email_log' );
+		$url = admin_url( 'admin.php?page=postman_email_log' );
 
-			if( $row->site_id && $row->site_id != 'main_site' ) {
+		if( $row->site_id && $row->site_id != 'main_site' ) {
 
-				$url .= "&site_id={$row->site_id}";
-				$website = MainWP_DB::instance()->get_website_by_id( $row->site_id );
-				$row->site_id = "<a href='{$url}' class='ps-mainwp-site'>{$website->name}</a>";
-			}
-
-			if( $row->site_id == 'main_site' ) {
-
-				$url .= "&site_id=main_site";
-				$row->site_id = get_bloginfo( 'name' ) ? get_bloginfo( 'name' ) : 'Main Site';
-				$row->site_id = "<a href='{$url}' class='ps-mainwp-site'>{$row->site_id}</a>";
-
-			}
-
-			return $row;
-			
+			$url .= "&site_id={$row->site_id}";
+			$row->site_id = "<a href='{$url}' class='ps-mainwp-site'>{$website->name}</a>";
 		}
+
+		if( $row->site_id == 'main_site' ) {
+
+			$url .= "&site_id=main_site";
+			$row->site_id = get_bloginfo( 'name' ) ? get_bloginfo( 'name' ) : 'Main Site';
+			$row->site_id = "<a href='{$url}' class='ps-mainwp-site'>{$row->site_id}</a>";
+
+		}
+
+		return $row;
 		
 	}
 	

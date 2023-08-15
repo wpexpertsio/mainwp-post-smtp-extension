@@ -1,7 +1,5 @@
 <?php
 
-use MainWP\Dashboard\MainWP_DB;
-
 if( !class_exists( 'Post_SMTP_MWP_Page' ) ):
 
 class Post_SMTP_MWP_Page {
@@ -284,7 +282,13 @@ class Post_SMTP_MWP_Page {
 			$what = (bool)sanitize_text_field( $_POST['what'] );
 			$status = $what;
 			$site_ID = sanitize_text_field( $_POST['site_id'] );
-			$website = MainWP_DB::instance()->get_website_by_id( $site_ID );
+			$childEnabled = apply_filters( 'mainwp_extension_enabled_check', __FILE__ );
+			$childKey = $childEnabled['key'];
+			$option = array(
+				'pubkey'         => true,
+			);
+			$website = apply_filters( 'mainwp_getdbsites', __FILE__, $childKey, array( $site_ID ), array(), $option );
+			$website = $website[$site_ID];
 			$what = $what ? 'enable_post_smtp' : 'disable_post_smtp';
 			$text = $what == 'enable_post_smtp' ? 'Enabling' : 'Disabling';
 			$api_key = md5( $website->pubkey );

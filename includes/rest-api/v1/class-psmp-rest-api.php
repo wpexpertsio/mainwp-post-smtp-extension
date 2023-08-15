@@ -1,7 +1,5 @@
 <?php
 
-use MainWP\Dashboard\MainWP_DB;
-
 if( !class_exists( 'Post_SMTP_MWP_Rest_API' ) ):
 class Post_SMTP_MWP_Rest_API {
 	
@@ -31,12 +29,12 @@ class Post_SMTP_MWP_Rest_API {
 	}
 	
 	
-	public function validate( $api_key, $site_url ) {
+	public function validate( $api_key, $site_id ) {
 		
 		if( 
 			empty( $api_key ) 
 			||
-			empty( $site_url ) 
+			empty( $site_id ) 
 		) {
 			
 			wp_send_json(
@@ -49,10 +47,15 @@ class Post_SMTP_MWP_Rest_API {
 			
 		}
 		
-		$maiwp_db = new MainWP_DB();
-		$site_data = $maiwp_db->get_websites_by_url( $site_url );
+		$childEnabled = apply_filters( 'mainwp_extension_enabled_check', __FILE__ );
+		$childKey = $childEnabled['key'];
+		
+		$option = array(
+			'pubkey'	=>	true
+		);
+		$site_data = apply_filters( 'mainwp_getdbsites', __FILE__, $childKey, array( $site_id ), array(), $option );
 
-		if( !$site_data ) {
+		if( !$site_data[$site_id] ) {
 			
 			wp_send_json(
 				array(
@@ -68,12 +71,12 @@ class Post_SMTP_MWP_Rest_API {
 		if( 
 			$site_data
 			&& 
-			isset( $site_data[0]->pubkey ) 
+			isset( $site_data[$site_id]->pubkey ) 
 			&&
-			md5( $site_data[0]->pubkey ) == $api_key
+			md5( $site_data[$site_id]->pubkey ) == $api_key
 		) {
 			
-			$this->site_id = $site_data[0]->id;
+			$this->site_id = $site_data[$site_id]->id;
 			return true;
 			
 		}
@@ -86,20 +89,20 @@ class Post_SMTP_MWP_Rest_API {
 		$result = false;
 		$headers = $request->get_headers();
 		$api_key = empty( $request->get_header( 'api_key' ) ) ? '' : sanitize_text_field( $request->get_header( 'api_key' ) );
-		$site_url = empty( $request->get_header( 'site_url' ) ) ? '' : sanitize_url( $request->get_header( 'site_url' ) );
+		$site_id = empty( $request->get_header( 'site_id' ) ) ? '' : sanitize_text_field( $request->get_header( 'site_id' ) );
 
 		if ( 
 			isset( $_GET['actionnonce'] ) 
 			&& 
 			isset( $_GET['pingnonce'] )
 			&&
-			$this->validate( $api_key, $site_url )
+			$this->validate( $api_key, $site_id )
 		) {
 			
 			if( apply_filters( 'mainwp_verify_ping_nonce', false, $_GET['pingnonce'], $this->site_id ) ) {
 				
 				$params = array(
-					'actionnonce' => $_GET['actionnonce'],
+					'actionnonce' => wp_unslash( $_GET['actionnonce'] ),
 				);
 				$childEnabled = apply_filters( 'mainwp_extension_enabled_check', __FILE__ );
 				$childKey = $childEnabled['key'];
@@ -111,7 +114,6 @@ class Post_SMTP_MWP_Rest_API {
 					//Override settings if checked in MainWP -> Extensions -> Post SMTP -> Enable Individual Settings
 					$this->override_settings();
 
-					$this->site_url = $site_url;
 					$params = $request->get_params();
 					$to = isset( $params['to'] ) ? $params['to'] : '';
 					$subject = isset( $params['subject'] ) ? $params['subject'] : '';
