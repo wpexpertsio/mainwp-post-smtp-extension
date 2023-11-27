@@ -203,11 +203,11 @@ if ( ! class_exists( 'Post_SMTP_MWP_Page' ) ) :
 			wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['psmwp_security'] ) ), 'psmwp-security' )
 			) {
 
-				$site_ids             = isset( $_POST['site_id'] ) ? array_map( 'intval', wp_unslash( $_POST['site_id'] ) ) : ''; // phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-				$email_addresses      = isset( $_POST['email_address'] ) ? array_map( 'sanitize_email', wp_unslash( $_POST['email_address'] ), 'email' ) : ''; // phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-				$names                = isset( $_POST['name'] ) ? array_map( 'sanitize_text_field', wp_unslash( $_POST['name'] ) ) : ''; // phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-				$reply_tos            = isset( $_POST['reply_to'] ) ? array_map( 'sanitize_email', wp_unslash( $_POST['reply_to'] ) ) : ''; // phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-				$enable_on_child_site = isset( $_POST['enable_on_child_site'] ) ? array_map( 'sanitize_text_field', wp_unslash( $_POST['enable_on_child_site'] ) ) : ''; // phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+				$site_ids             = isset( $_POST['site_id'] ) ? array_map( 'intval', wp_unslash( $_POST['site_id'] ) ) : '';
+				$email_addresses      = isset( $_POST['email_address'] ) ? array_map( 'sanitize_email', wp_unslash( $_POST['email_address'] ), 'email' ) : '';
+				$names                = isset( $_POST['name'] ) ? array_map( 'sanitize_text_field', wp_unslash( $_POST['name'] ) ) : '';
+				$reply_tos            = isset( $_POST['reply_to'] ) ? array_map( 'sanitize_email', wp_unslash( $_POST['reply_to'] ) ) : '';
+				$enable_on_child_site = isset( $_POST['enable_on_child_site'] ) ? array_map( 'sanitize_text_field', wp_unslash( $_POST['enable_on_child_site'] ) ) : '';
 
 				$sites = array();
 
