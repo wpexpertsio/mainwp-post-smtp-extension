@@ -81,7 +81,7 @@ if ( ! class_exists( 'Post_SMTP_MWP_Page' ) ) :
 			$site_ids     = array();
 			$is_staging   = 'no';
 			$staging_view = 'staging' === get_user_option( 'mainwp_staging_options_updates_view' ) ? true : false;
-			$saved_sites  = get_option( 'postman_mainwp_sites' );
+			$saved_sites  = get_option( 'post_smtp_mainwp_sites' );
 
 			?>
 
@@ -222,7 +222,7 @@ if ( ! class_exists( 'Post_SMTP_MWP_Page' ) ) :
 
 				}
 
-				update_option( 'postman_mainwp_sites', $sites );
+				update_option( 'post_smtp_mainwp_sites', $sites );
 
 				wp_safe_redirect( admin_url( 'admin.php?page=Extensions-Mainwp-Post-Smtp-Extension' ) );
 
@@ -325,11 +325,11 @@ if ( ! class_exists( 'Post_SMTP_MWP_Page' ) ) :
 
 					if ( $response && ! isset( $response['error'] ) ) {
 
-						$sites                                     = get_option( 'postman_mainwp_sites' );
+						$sites                                     = get_option( 'post_smtp_mainwp_sites' );
 						$sites                                     = $sites ? $sites : array();
 						$sites[ $site_id ]['enable_on_child_site'] = $status ? 1 : '';
 
-						update_option( 'postman_mainwp_sites', $sites );
+						update_option( 'post_smtp_mainwp_sites', $sites );
 
 						wp_send_json_success(
 							array(),

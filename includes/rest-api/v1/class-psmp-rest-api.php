@@ -247,7 +247,7 @@ if ( ! class_exists( 'Post_SMTP_MWP_Rest_API' ) ) :
 		 */
 		public function override_settings() {
 
-			$saved_sites = get_option( 'postman_mainwp_sites' );
+			$saved_sites = get_option( 'post_smtp_mainwp_sites' );
 
 			if ( ! empty( $saved_sites )
 			&&
