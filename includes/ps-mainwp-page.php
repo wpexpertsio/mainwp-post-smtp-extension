@@ -203,11 +203,11 @@ if ( ! class_exists( 'Post_SMTP_MWP_Page' ) ) :
 			wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['psmwp_security'] ) ), 'psmwp-security' )
 			) {
 
-				$site_ids             = isset( $_POST['site_id'] ) ? $this->sanitize_array( wp_unslash( $_POST['site_id'] ) ) : ''; // phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-				$email_addresses      = isset( $_POST['email_address'] ) ? $this->sanitize_array( wp_unslash( $_POST['email_address'] ) ) : ''; // phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-				$names                = isset( $_POST['name'] ) ? $this->sanitize_array( wp_unslash( $_POST['name'] ) ) : ''; // phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-				$reply_tos            = isset( $_POST['reply_to'] ) ? $this->sanitize_array( wp_unslash( $_POST['reply_to'] ) ) : ''; // phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
-				$enable_on_child_site = isset( $_POST['enable_on_child_site'] ) ? $this->sanitize_array( wp_unslash( $_POST['enable_on_child_site'] ) ) : ''; // phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+				$site_ids             = isset( $_POST['site_id'] ) ? array_map( 'intval', wp_unslash( $_POST['site_id'] ) ) : ''; // phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+				$email_addresses      = isset( $_POST['email_address'] ) ? array_map( 'sanitize_email', wp_unslash( $_POST['email_address'] ), 'email' ) : ''; // phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+				$names                = isset( $_POST['name'] ) ? array_map( 'sanitize_text_field', wp_unslash( $_POST['name'] ) ) : ''; // phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+				$reply_tos            = isset( $_POST['reply_to'] ) ? array_map( 'sanitize_email', wp_unslash( $_POST['reply_to'] ) ) : ''; // phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
+				$enable_on_child_site = isset( $_POST['enable_on_child_site'] ) ? array_map( 'sanitize_text_field', wp_unslash( $_POST['enable_on_child_site'] ) ) : ''; // phpcs:disable WordPress.Security.ValidatedSanitizedInput.InputNotSanitized
 
 				$sites = array();
 
@@ -235,16 +235,41 @@ if ( ! class_exists( 'Post_SMTP_MWP_Page' ) ) :
 		 * Sanitizes the Array
 		 *
 		 * @param array $args Array to be sanitized.
+		 * @param string $data_type String which type of sanitization should be done.
 		 * @since 1.0.0
 		 * @version 1.0.0
 		 */
-		public function sanitize_array( $args ) {
+		public function sanitize_array( $args, $data_type = 'string' ) {
 
 			$sanitized = array();
 
-			foreach ( $args as $key => $value ) {
+			if( $data_type == 'int' ) {
+				
+				foreach ( $args as $key => $value ) {
 
-				$sanitized[ $key ] = sanitize_text_field( $value );
+					$sanitized[ $key ] = intval( $value );
+	
+				}
+
+			}
+
+			if( $data_type == 'email' ) {
+				
+				foreach ( $args as $key => $value ) {
+
+					$sanitized[ $key ] = sanitize_email( $value );
+	
+				}
+
+			}
+
+			if( $data_type == 'string' ) {
+				
+				foreach ( $args as $key => $value ) {
+
+					$sanitized[ $key ] = sanitize_text_field( $value );
+	
+				}
 
 			}
 
