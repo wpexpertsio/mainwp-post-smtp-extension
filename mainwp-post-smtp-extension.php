@@ -9,209 +9,45 @@
  * Author URI: https://postmansmtp.com
  * License: GPLv2 or later
  * License URI: http://www.gnu.org/licenses/gpl-2.0.html
+ *
+ * @package MainWP Post SMTP Extension
  */
 
-if ( ! class_exists( 'Post_SMTP_MainWP' ) ) :
+/**
+ * Post SMTP Missing Notice
+ *
+ * @since   1.0.0
+ * @version 1.0.0
+ */
+function post_smtp_missing_notice() {
 
-	/**
-	 * Class Post_SMTP_MainWP
-	 *
-	 * @since 1.0.0
-	 * @version 1.0.0
-	 */
-	class Post_SMTP_MainWP {
+	$class   = 'notice notice-error';
+	$message = __(
+		'MainWP Post SMTP Extenstion requires Post SMTP plugin to be installed and activated.',
+		'post-smtp'
+	);
 
+	printf(
+		'<div class="%1$s"><p>%2$s</p></div>',
+		esc_attr( $class ),
+		esc_html( $message )
+	);
+}
 
-		/**
-		 * Child Key
-		 *
-		 * @var $child_key string
-		 */
-		private $child_key = false;
+if ( ! function_exists( 'is_plugin_active' ) ) {
 
-		/**
-		 * Instance of the class
-		 *
-		 * @since   1.0.0
-		 * @version 1.0.0
-		 * @var     object
-		 */
-		private static $instance = null;
+	include ABSPATH . 'wp-admin/includes/plugin.php';
 
+}
 
-		/**
-		 * Get the instance of the class
-		 *
-		 * @since   1.0.0
-		 * @version 1.0.0
-		 */
-		public static function get_instance() {
+if ( ! is_plugin_active( 'post-smtp/postman-smtp.php' ) ) {
 
-			if ( null === self::$instance ) {
+	add_action( 'admin_notices', 'post_smtp_missing_notice' );
 
-				self::$instance = new self();
+} else {
 
-			}
+	require 'includes/class-ps-mainwp.php';
 
-			return self::$instance;
+	Post_SMTP_MainWP::get_instance();
 
-		}
-
-
-		/**
-		 * Post_SMTP_MainWP constructor.
-		 *
-		 * @since   1.0.0
-		 * @version 1.0.0
-		 */
-		public function __construct() {
-
-			add_filter( 'mainwp_getextensions', array( $this, 'get_this_extension' ) );
-			add_filter( 'mainwp_header_left', array( $this, 'change_title' ) );
-
-			$mainwp_activated = apply_filters( 'mainwp_activated_check', false );
-
-			if ( false !== $mainwp_activated ) {
-
-				$this->start_post_smtp_mainwp();
-
-			} else {
-
-				add_action( 'mainwp_activated', array( $this, 'start_post_smtp_mainwp' ) );
-
-			}
-
-		}
-
-
-		/**
-		 * Get this extension | Filter Callback
-		 *
-		 * @since   1.0.0
-		 * @version 1.0.0
-		 */
-		public function get_this_extension() {
-
-			$extensions[] = array(
-				'plugin'   => __FILE__,
-				'callback' => array( $this, 'post_smtp_mainwp_page' ),
-			);
-
-			return $extensions;
-
-		}
-
-
-		/**
-		 * Start the plugin
-		 *
-		 * @since   1.0.0
-		 * @version 1.0.0
-		 */
-		public function start_post_smtp_mainwp() {
-
-			global $child_enabled;
-			$child_enabled = apply_filters( 'mainwp_extension_enabled_check', __FILE__ );
-
-			if ( ! $child_enabled ) {
-
-				return;
-
-			}
-
-			$this->child_key = $child_enabled['key'];
-
-			$this->init();
-
-		}
-
-
-		/**
-		 * Post SMTP MainWP Page
-		 *
-		 * @since   1.0.0
-		 * @version 1.0.0
-		 */
-		public function post_smtp_mainwp_page() {
-
-			$page = new Post_SMTP_MWP_Page();
-			$page->page();
-
-		}
-
-
-		/**
-		 * Change Title
-		 *
-		 * @param Title $title string.
-		 * @since 1.0.0
-		 * @version 1.0.0
-		 */
-		public function change_title( $title ) {
-
-			if ( 'Post Smtp/Postman//Core/' === $title ) {
-
-				$title = 'Post SMTP';
-
-			}
-
-			return $title;
-
-		}
-
-
-		/**
-		 * Initialize The Plugin
-		 *
-		 * @since   1.0.0
-		 * @version 1.0.0
-		 */
-		public function init() {
-
-			include_once 'includes/rest-api/v1/class-psmp-rest-api.php';
-			include_once 'includes/ps-mainwp-page.php';
-			include_once 'includes/ps-mainwp-table.php';
-
-		}
-
-	}
-
-	/**
-	 * Post SMTP Missing Notice
-	 *
-	 * @since   1.0.0
-	 * @version 1.0.0
-	 */
-	function post_smtp_missing_notice() {
-
-		$class   = 'notice notice-error';
-		$message = __(
-			'MainWP Post SMTP Extenstion requires Post SMTP plugin to be installed and activated.',
-			'post-smtp'
-		);
-
-		printf(
-			'<div class="%1$s"><p>%2$s</p></div>',
-			esc_attr( $class ),
-			esc_html( $message )
-		);
-
-	}
-
-	if ( ! function_exists( 'is_plugin_active' ) ) {
-
-		include ABSPATH . 'wp-admin/includes/plugin.php';
-
-	}
-
-	if ( ! is_plugin_active( 'post-smtp/postman-smtp.php' ) ) {
-
-		add_action( 'admin_notices', 'post_smtp_missing_notice' );
-
-	} else {
-
-		Post_SMTP_MainWP::get_instance();
-
-	}
-
-endif;
+}

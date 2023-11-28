@@ -1,39 +1,44 @@
 <?php
+/**
+ * Post SMTP MainWP Table
+ *
+ * @package Post SMTP MainWP Table
+ */
 
 if ( ! class_exists( 'Post_SMTP_MWP_Table' ) ) :
 
 	/**
 	 * Post SMTP MainWP Table
 	 *
-	 * @since 1.0.0
+	 * @since   1.0.0
 	 * @version 1.0.0
 	 */
 	class Post_SMTP_MWP_Table {
 
+
 		/**
 		 * Constructor
 		 *
-		 * @since 1.0.0
+		 * @since   1.0.0
 		 * @version 1.0.0
 		 */
 		public function __construct() {
 
 			add_action( 'post_smtp_email_logs_table_header', array( $this, 'email_logs_table_header' ) );
 			add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ) );
-			add_filter( 'post_smtp_get_logs_query_after_table', array( $this, 'query_join' ), 10, 2 );
-			add_filter( 'post_smtp_get_logs_query_cols', array( $this, 'query_columns' ), 10, 2 );
+			add_filter( 'post_smtp_get_logs_query_after_table', array( $this, 'query_join' ) );
+			add_filter( 'post_smtp_get_logs_query_cols', array( $this, 'query_columns' ) );
 			add_filter( 'post_smtp_email_logs_localize', array( $this, 'email_logs_localize' ) );
 			add_filter( 'ps_email_logs_row', array( $this, 'filter_row' ) );
 			add_filter( 'post_smtp_get_logs_args', array( $this, 'logs_args' ) );
 			add_action( 'postman_delete_logs_successfully', array( $this, 'delete_logs' ) );
-
 		}
 
 
 		/**
 		 * Enqueue Scripts | Action Callback
 		 *
-		 * @since 1.0.0
+		 * @since   1.0.0
 		 * @version 1.0.0
 		 */
 		public function admin_enqueue_scripts() {
@@ -49,32 +54,29 @@ if ( ! class_exists( 'Post_SMTP_MWP_Table' ) ) :
 					'allSites'   => __( 'All Sites', 'post-smtp' ),
 				),
 			);
-
 		}
 
 
 		/**
 		 * Add Opened Column | Action Callback
 		 *
-		 * @since 1.0.0
+		 * @since   1.0.0
 		 * @version 1.0.0
 		 */
 		public function email_logs_table_header() {
 
 			echo '<th>' . esc_html__( 'Site', 'post-smtp' ) . '</th>';
-
 		}
 
 
 		/**
 		 * Add Opened Column | Filter Callback
 		 *
-		 * @param String $join Join.
-		 * @param Array  $args Query Args.
-		 * @since 1.0.0
+		 * @param   String $join Join.
+		 * @since   1.0.0
 		 * @version 1.0.0
 		 */
-		public function query_join( $join, $args ) {
+		public function query_join( $join ) {
 
 			global $wpdb;
 			$email_logs = new PostmanEmailLogs();
@@ -82,31 +84,28 @@ if ( ! class_exists( 'Post_SMTP_MWP_Table' ) ) :
 			$join .= " LEFT JOIN {$wpdb->prefix}{$email_logs->meta_table} AS lm ON lm.log_id = pl.id AND lm.meta_key = 'mainwp_child_site_id'";
 
 			return $join;
-
 		}
 
 		/**
 		 * Add Opened Column | Filter Callback
 		 *
-		 * @param String $columns Columns.
-		 * @param Array  $args Query Args.
-		 * @since 1.0.0
+		 * @param   String $columns Columns.
+		 * @since   1.0.0
 		 * @version 1.0.0
 		 */
-		public function query_columns( $columns, $args ) {
+		public function query_columns( $columns ) {
 
 			$columns .= ', lm.meta_value AS site_id';
 
 			return $columns;
-
 		}
 
 
 		/**
 		 * Localize the strings | Filter Callback
 		 *
-		 * @param Array $localize Localize.
-		 * @since 1.0.0
+		 * @param   Array $localize Localize.
+		 * @since   1.0.0
 		 * @version 1.0.0
 		 */
 		public function email_logs_localize( $localize ) {
@@ -116,15 +115,14 @@ if ( ! class_exists( 'Post_SMTP_MWP_Table' ) ) :
 			);
 
 			return $localize;
-
 		}
 
 
 		/**
 		 * Fitler Log's Row | Filter Callback
 		 *
-		 * @param Array $row Log's Row.
-		 * @since 2.5.0
+		 * @param   Array $row Log's Row.
+		 * @since   2.5.0
 		 * @version 1.0.0
 		 */
 		public function filter_row( $row ) {
@@ -152,15 +150,14 @@ if ( ! class_exists( 'Post_SMTP_MWP_Table' ) ) :
 			}
 
 			return $row;
-
 		}
 
 
 		/**
 		 * Add Opened Column | Filter Callback
 		 *
-		 * @param Array $args Query Args.
-		 * @since 1.0.0
+		 * @param   Array $args Query Args.
+		 * @since   1.0.0
 		 * @version 1.0.0
 		 */
 		public function logs_args( $args ) {
@@ -172,14 +169,13 @@ if ( ! class_exists( 'Post_SMTP_MWP_Table' ) ) :
 			}
 
 			return $args;
-
 		}
 
 
 		/**
 		 * Gets MainWP's Child Sites
 		 *
-		 * @since 2.5.0
+		 * @since   2.5.0
 		 * @version 1.0.0
 		 */
 		public function get_sites() {
@@ -196,14 +192,13 @@ if ( ! class_exists( 'Post_SMTP_MWP_Table' ) ) :
 			}
 
 			return empty( $site_ids ) ? false : $site_ids;
-
 		}
 
 
 		/**
 		 * Checks if the user is in staging view
 		 *
-		 * @since 1.0.0
+		 * @since   1.0.0
 		 * @version 1.0.0
 		 */
 		public function is_staging_view() {
@@ -247,17 +242,16 @@ if ( ! class_exists( 'Post_SMTP_MWP_Table' ) ) :
 			}
 
 			return $result;
-
 		}
 
 
-		 /**
-		  * Delete logs
-		  *
-		  * @param array $ids Log IDs.
-		  * @since 2.5.0
-		  * @version 1.0.0
-		  */
+		/**
+		 * Delete logs
+		 *
+		 * @param   array $ids Log IDs.
+		 * @since   2.5.0
+		 * @version 1.0.0
+		 */
 		public function delete_logs( $ids ) {
 
 			$ids   = implode( ',', $ids );
@@ -267,6 +261,7 @@ if ( ! class_exists( 'Post_SMTP_MWP_Table' ) ) :
 			global $wpdb;
 			$email_logs = new PostmanEmailLogs();
 
+			// phpcs:ignore WordPress.DB.DirectDatabaseQuery
 			return $wpdb->query(
 				$wpdb->prepare(
 					'DELETE FROM %i %s',
@@ -274,9 +269,7 @@ if ( ! class_exists( 'Post_SMTP_MWP_Table' ) ) :
 					$ids
 				)
 			);
-
 		}
-
 	}
 
 	new Post_SMTP_MWP_Table();

@@ -1,14 +1,20 @@
 <?php
+/**
+ * Post SMTP MainWP Rest API
+ *
+ * @package Post SMTP MainWP Rest API
+ */
 
 if ( ! class_exists( 'Post_SMTP_MWP_Rest_API' ) ) :
 
 	/**
 	 * Class Post_SMTP_MWP_Rest_API
 	 *
-	 * @since 1.0.0
+	 * @since   1.0.0
 	 * @version 1.0.0
 	 */
 	class Post_SMTP_MWP_Rest_API {
+
 
 		/**
 		 * Site ID
@@ -27,21 +33,20 @@ if ( ! class_exists( 'Post_SMTP_MWP_Rest_API' ) ) :
 		/**
 		 * Post_SMTP_MWP_Rest_API constructor.
 		 *
-		 * @since 1.0.0
+		 * @since   1.0.0
 		 * @version 1.0.0
 		 */
 		public function __construct() {
 
 			add_action( 'rest_api_init', array( $this, 'rest_api_init' ) );
 			add_action( 'post_smtp_after_email_log_saved', array( $this, 'update_log_meta' ) );
-
 		}
 
 
 		/**
 		 * Override Reply-To
 		 *
-		 * @since 1.0.0
+		 * @since   1.0.0
 		 * @version 1.0.0
 		 */
 		public function rest_api_init() {
@@ -55,23 +60,21 @@ if ( ! class_exists( 'Post_SMTP_MWP_Rest_API' ) ) :
 					'permission_callback' => '__return_true',
 				)
 			);
-
 		}
 
 
 		/**
 		 * Validate
 		 *
-		 * @param string $api_key API Key.
-		 * @param string $site_id Site ID.
-		 * @since 1.0.0
+		 * @param   string $api_key API Key.
+		 * @param   string $site_id Site ID.
+		 * @since   1.0.0
 		 * @version 1.0.0
 		 */
 		public function validate( $api_key, $site_id ) {
 
 			if ( empty( $api_key )
-			||
-			empty( $site_id )
+				|| empty( $site_id )
 			) {
 
 				wp_send_json(
@@ -106,25 +109,22 @@ if ( ! class_exists( 'Post_SMTP_MWP_Rest_API' ) ) :
 
 			// Let's allow request.
 			if ( $site_data
-			&&
-			isset( $site_data[ $site_id ]->pubkey )
-			&&
-			md5( $site_data[ $site_id ]->pubkey ) === $api_key
+				&& isset( $site_data[ $site_id ]->pubkey )
+				&& md5( $site_data[ $site_id ]->pubkey ) === $api_key
 			) {
 
 				$this->site_id = $site_data[ $site_id ]->id;
 				return true;
 
 			}
-
 		}
 
 
 		/**
 		 * Sends Email
 		 *
-		 * @param WP_REST_Request $request Log ID.
-		 * @since 1.0.0
+		 * @param   WP_REST_Request $request Log ID.
+		 * @since   1.0.0
 		 * @version 1.0.0
 		 */
 		public function send_email( WP_REST_Request $request ) {
@@ -135,10 +135,8 @@ if ( ! class_exists( 'Post_SMTP_MWP_Rest_API' ) ) :
 			$site_id = empty( $request->get_header( 'site_id' ) ) ? '' : sanitize_text_field( $request->get_header( 'site_id' ) );
 
 			if ( isset( $_GET['actionnonce'] ) // phpcs:disable WordPress.Security.NonceVerification
-			&&
-			isset( $_GET['pingnonce'] ) // phpcs:disable WordPress.Security.NonceVerification
-			&&
-			$this->validate( $api_key, $site_id )
+				&& isset( $_GET['pingnonce'] ) // phpcs:disable WordPress.Security.NonceVerification
+				&& $this->validate( $api_key, $site_id )
 			) {
 
 				if ( apply_filters( 'mainwp_verify_ping_nonce', false, sanitize_text_field( wp_unslash( $_GET['pingnonce'] ) ), $this->site_id ) ) { // phpcs:disable WordPress.Security.NonceVerification
@@ -212,15 +210,14 @@ if ( ! class_exists( 'Post_SMTP_MWP_Rest_API' ) ) :
 			}
 
 			return $result;
-
 		}
 
 
 		/**
 		 * Updates Log Meta
 		 *
-		 * @param int $log_id Log ID.
-		 * @since 1.0.0
+		 * @param   int $log_id Log ID.
+		 * @since   1.0.0
 		 * @version 1.0.0
 		 */
 		public function update_log_meta( $log_id ) {
@@ -235,14 +232,13 @@ if ( ! class_exists( 'Post_SMTP_MWP_Rest_API' ) ) :
 				postman_add_log_meta( $log_id, 'mainwp_child_site_id', 'main_site' );
 
 			}
-
 		}
 
 
 		/**
 		 * Override Settings
 		 *
-		 * @since 1.0.0
+		 * @since   1.0.0
 		 * @version 1.0.0
 		 */
 		public function override_settings() {
@@ -250,8 +246,7 @@ if ( ! class_exists( 'Post_SMTP_MWP_Rest_API' ) ) :
 			$saved_sites = get_option( 'post_smtp_mainwp_sites' );
 
 			if ( ! empty( $saved_sites )
-			&&
-			isset( $saved_sites[ $this->site_id ] )
+				&& isset( $saved_sites[ $this->site_id ] )
 			) {
 
 				$this->site = $saved_sites[ $this->site_id ];
@@ -271,48 +266,43 @@ if ( ! class_exists( 'Post_SMTP_MWP_Rest_API' ) ) :
 
 				}
 			}
-
 		}
 
 
 		/**
 		 * Override From Email
 		 *
-		 * @since 1.0.0
+		 * @since   1.0.0
 		 * @version 1.0.0
 		 */
 		public function override_from_email() {
 
 			return $this->site['email_address'];
-
 		}
 
 
 		/**
 		 * Override From Name
 		 *
-		 * @since 1.0.0
+		 * @since   1.0.0
 		 * @version 1.0.0
 		 */
 		public function override_from_name() {
 
 			return $this->site['name'];
-
 		}
 
 
 		/**
 		 * Override Reply-To
 		 *
-		 * @since 1.0.0
+		 * @since   1.0.0
 		 * @version 1.0.0
 		 */
 		public function override_reply_to() {
 
 			return $this->site['reply_to'];
-
 		}
-
 	}
 
 	new Post_SMTP_MWP_Rest_API();

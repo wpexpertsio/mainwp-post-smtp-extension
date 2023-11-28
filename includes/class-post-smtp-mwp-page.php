@@ -1,30 +1,33 @@
 <?php
+/**
+ * Post SMTP MainWP Page
+ *
+ * @package Post SMTP MainWP Page
+ */
 
 if ( ! class_exists( 'Post_SMTP_MWP_Page' ) ) :
 
 	/**
 	 * Class Post_SMTP_MWP_Page
 	 *
-	 * @since 1.0.0
+	 * @since   1.0.0
 	 * @version 1.0.0
 	 */
 	class Post_SMTP_MWP_Page {
 
+
 		/**
 		 * Post_SMTP_MWP_Page constructor.
 		 *
-		 * @since 1.0.0
+		 * @since   1.0.0
 		 * @version 1.0.0
 		 */
 		public function __construct() {
 
 			if ( isset( $_GET['page'] ) // phpcs:disable WordPress.Security.NonceVerification
-			&&
-			(
-				'Extensions-Mainwp-Post-Smtp-Extension' === $_GET['page'] // phpcs:disable WordPress.Security.NonceVerification
-				||
-				'postman_email_log' === $_GET['page'] // phpcs:disable WordPress.Security.NonceVerification
-			)
+				&& ( 'Extensions-Mainwp-Post-Smtp-Extension' === $_GET['page'] // phpcs:disable WordPress.Security.NonceVerification
+				|| 'postman_email_log' === $_GET['page'] // phpcs:disable WordPress.Security.NonceVerification
+				)
 			) {
 
 				add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
@@ -33,28 +36,26 @@ if ( ! class_exists( 'Post_SMTP_MWP_Page' ) ) :
 
 			add_action( 'admin_post_post_smtp_mwp_save_sites', array( $this, 'save_sites' ) );
 			add_action( 'wp_ajax_post-smtp-request-mwp-child', array( $this, 'request_child' ) );
-
 		}
 
 
 		/**
 		 * Enquque Script | Action Callback
 		 *
-		 * @since 1.0.0
+		 * @since   1.0.0
 		 * @version 1.0.0
 		 */
 		public function enqueue_scripts() {
 
 			wp_enqueue_style( PostmanViewController::POSTMAN_STYLE );
 			wp_enqueue_style( 'post-smtp-mainwp', plugin_dir_url( __DIR__ ) . 'assets/css/style.css', array(), '1.0.0' );
-
 		}
 
 
 		/**
 		 * Renders Page in MainWP
 		 *
-		 * @since 1.0.0
+		 * @since   1.0.0
 		 * @version 1.0.0
 		 */
 		public function page() {
@@ -113,19 +114,19 @@ if ( ! class_exists( 'Post_SMTP_MWP_Page' ) ) :
 				// Lets find out if Post SMTP is active on child site or not.
 				if ( isset( $site->plugins ) ) {
 
-					$plugins      = json_decode( $site->plugins );
-					$has_postsmtp = false;
+						$plugins      = json_decode( $site->plugins );
+						$has_postsmtp = false;
 
 					foreach ( $plugins as $plugin ) {
 
 						if ( 'Post SMTP' === $plugin->name && 1 === $plugin->active ) {
 
-							$has_postsmtp = true;
-							break;
+										$has_postsmtp = true;
+										break;
 
 						} else {
 
-							continue;
+								continue;
 
 						}
 
@@ -150,7 +151,7 @@ if ( ! class_exists( 'Post_SMTP_MWP_Page' ) ) :
 							<input type="checkbox" <?php echo esc_attr( $enabled_on_child_site ); ?> value="1" class="enable-on-child-site" data-id="<?php echo esc_attr( $id ); ?>" name="<?php echo 'enable_on_child_site[' . esc_attr( $id ) . ']'; ?>" />
 							<span class="slider round"></span>
 						</label> 
-						<?php echo esc_attr( $site->name ); ?><span class="ps-error"></span><span class="spinner"></span></div>
+				<?php echo esc_attr( $site->name ); ?><span class="ps-error"></span><span class="spinner"></span></div>
 					<div class="content">
 						<table>
 							<tr>
@@ -181,26 +182,22 @@ if ( ! class_exists( 'Post_SMTP_MWP_Page' ) ) :
 			<?php
 
 			do_action( 'mainwp_pagefooter_extensions', __FILE__ );
-
 		}
 
 
 		/**
 		 * Save Sites | Action Callback
 		 *
-		 * @since 1.0.0
+		 * @since   1.0.0
 		 * @version 1.0.0
 		 */
 		public function save_sites() {
 
 			// Security Check.
 			if ( isset( $_POST['action'] )
-			&&
-			'post_smtp_mwp_save_sites' === $_POST['action']
-			&&
-			isset( $_POST['psmwp_security'] )
-			&&
-			wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['psmwp_security'] ) ), 'psmwp-security' )
+				&& 'post_smtp_mwp_save_sites' === $_POST['action']
+				&& isset( $_POST['psmwp_security'] )
+				&& wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['psmwp_security'] ) ), 'psmwp-security' )
 			) {
 
 				$site_ids             = isset( $_POST['site_id'] ) ? array_map( 'intval', wp_unslash( $_POST['site_id'] ) ) : '';
@@ -227,64 +224,15 @@ if ( ! class_exists( 'Post_SMTP_MWP_Page' ) ) :
 				wp_safe_redirect( admin_url( 'admin.php?page=Extensions-Mainwp-Post-Smtp-Extension' ) );
 
 			}
-
 		}
-
-
-		/**
-		 * Sanitizes the Array
-		 *
-		 * @param array $args Array to be sanitized.
-		 * @param string $data_type String which type of sanitization should be done.
-		 * @since 1.0.0
-		 * @version 1.0.0
-		 */
-		public function sanitize_array( $args, $data_type = 'string' ) {
-
-			$sanitized = array();
-
-			if( $data_type == 'int' ) {
-				
-				foreach ( $args as $key => $value ) {
-
-					$sanitized[ $key ] = intval( $value );
-	
-				}
-
-			}
-
-			if( $data_type == 'email' ) {
-				
-				foreach ( $args as $key => $value ) {
-
-					$sanitized[ $key ] = sanitize_email( $value );
-	
-				}
-
-			}
-
-			if( $data_type == 'string' ) {
-				
-				foreach ( $args as $key => $value ) {
-
-					$sanitized[ $key ] = sanitize_text_field( $value );
-	
-				}
-
-			}
-
-			return $sanitized;
-
-		}
-
 
 		/**
 		 * Gets option value by key
 		 *
-		 * @param array  $option Option.
-		 * @param int    $site_id Site ID.
-		 * @param string $key Key of the option.
-		 * @since 1.0.0
+		 * @param   array  $option  Option.
+		 * @param   int    $site_id Site ID.
+		 * @param   string $key     Key of the option.
+		 * @since   1.0.0
 		 * @version 1.0.0
 		 */
 		public function get_option( $option, $site_id, $key ) {
@@ -296,25 +244,21 @@ if ( ! class_exists( 'Post_SMTP_MWP_Page' ) ) :
 			}
 
 			return '';
-
 		}
 
 
 		/**
 		 * Request on Child Site | AJAX Callback
 		 *
-		 * @since 1.0.0
+		 * @since   1.0.0
 		 * @version 1.0.0
 		 */
 		public function request_child() {
 
 			if ( isset( $_POST['action'] )
-			&&
-			'post-smtp-request-mwp-child' === $_POST['action']
-			&&
-			isset( $_POST['security'] )
-			&&
-			wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['security'] ) ), 'psmwp-security' )
+				&& 'post-smtp-request-mwp-child' === $_POST['action']
+				&& isset( $_POST['security'] )
+				&& wp_verify_nonce( sanitize_text_field( wp_unslash( $_POST['security'] ) ), 'psmwp-security' )
 			) {
 
 				$what          = isset( $_POST['what'] ) ? (bool) sanitize_text_field( wp_unslash( $_POST['what'] ) ) : '';
@@ -350,16 +294,16 @@ if ( ! class_exists( 'Post_SMTP_MWP_Page' ) ) :
 
 					if ( $response && ! isset( $response['error'] ) ) {
 
-						$sites                                     = get_option( 'post_smtp_mainwp_sites' );
-						$sites                                     = $sites ? $sites : array();
-						$sites[ $site_id ]['enable_on_child_site'] = $status ? 1 : '';
+								$sites                                     = get_option( 'post_smtp_mainwp_sites' );
+								$sites                                     = $sites ? $sites : array();
+								$sites[ $site_id ]['enable_on_child_site'] = $status ? 1 : '';
 
-						update_option( 'post_smtp_mainwp_sites', $sites );
+								update_option( 'post_smtp_mainwp_sites', $sites );
 
-						wp_send_json_success(
-							array(),
-							200
-						);
+							wp_send_json_success(
+								array(),
+								200
+							);
 
 					}
 
@@ -382,9 +326,7 @@ if ( ! class_exists( 'Post_SMTP_MWP_Page' ) ) :
 
 				}
 			}
-
 		}
-
 	}
 
 	new Post_SMTP_MWP_Page();
