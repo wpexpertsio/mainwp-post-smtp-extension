@@ -46,7 +46,7 @@ if ( ! is_plugin_active( 'post-smtp/postman-smtp.php' ) ) {
 
 } else {
 
-	require 'includes/class-ps-mainwp.php';
+	require 'includes/class-post-smtp-mainwp.php';
 
 	Post_SMTP_MainWP::get_instance();
 
