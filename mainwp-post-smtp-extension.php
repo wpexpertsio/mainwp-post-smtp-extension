@@ -13,6 +13,8 @@
  * @package MainWP Post SMTP Extension
  */
 
+define( 'POST_SMTP_MAINWP_FILE', __FILE__ );
+
 /**
  * Post SMTP Missing Notice
  *

@@ -83,10 +83,10 @@ if ( ! class_exists( 'Post_SMTP_MainWP' ) ) :
 		 * @since   1.0.0
 		 * @version 1.0.0
 		 */
-		public function get_this_extension() {
+		public function get_this_extension( $extensions ) {
 
 			$extensions[] = array(
-				'plugin'   => __FILE__,
+				'plugin'   => POST_SMTP_MAINWP_FILE,
 				'callback' => array( $this, 'post_smtp_mainwp_page' ),
 			);
 
@@ -103,7 +103,7 @@ if ( ! class_exists( 'Post_SMTP_MainWP' ) ) :
 		public function start_post_smtp_mainwp() {
 
 			global $child_enabled;
-			$child_enabled = apply_filters( 'mainwp_extension_enabled_check', __FILE__ );
+			$child_enabled = apply_filters( 'mainwp_extension_enabled_check', POST_SMTP_MAINWP_FILE );
 
 			if ( ! $child_enabled ) {
 
@@ -157,9 +157,9 @@ if ( ! class_exists( 'Post_SMTP_MainWP' ) ) :
 		 */
 		public function init() {
 
-			include_once 'includes/rest-api/v1/class-post-smtp-mwp-rest-api.php';
-			include_once 'includes/class-post-smtp-mwp-page.php';
-			include_once 'includes/class-post-smtp-mwp-table.php';
+			include_once 'rest-api/v1/class-post-smtp-mwp-rest-api.php';
+			include_once 'class-post-smtp-mwp-page.php';
+			include_once 'class-post-smtp-mwp-table.php';
 		}
 	}
 
