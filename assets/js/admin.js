@@ -29,9 +29,9 @@ jQuery( document ).ready(
 		);
 
 		var currentURL = window.location.href;
-		var site_id    = PostSMTPGetParameterByName( 'site_id', currentURL );
+		var site_id = PostSMTPGetParameterByName( 'site_id', currentURL );
 		// Render Child Sites on Log Page.
-		var _options                     = ` < option value = '-1' > ${PSMainWP.allSites} < / option > `;
+		var _options = `<option value='-1'>${PSMainWP.allSites}</option>`;
 		PSMainWP.childSites['main_site'] = PSMainWP.mainSite;
 
 		jQuery.each(
@@ -46,20 +46,18 @@ jQuery( document ).ready(
 
 				}
 
-				_options += ` < option value = '${key}' ${_selected} > ${value} < / option > `;
+				_options += ` <option value='${key}' ${_selected}> ${value} </option>`;
 
 			}
 		)
 		jQuery( '.ps-email-log-date-filter' ).after(
-			`
-			< div class = "ps-mainwp-site-filter" >
-			< label > Site
-				< select class = "ps-mainwp-site-selector" >
-					${_options}
-				< / select >
-			< / label >
-			< / div >
-			`
+			`<div class ="ps-mainwp-site-filter">
+				<label>Site
+					<select class ="ps-mainwp-site-selector">
+						${_options}
+					</select>
+				</label>
+			</div>`
 		);
 
 		// Enable on child site.
