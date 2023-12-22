@@ -201,7 +201,7 @@ if ( ! class_exists( 'Post_SMTP_MWP_Page' ) ) :
 			) {
 
 				$site_ids             = isset( $_POST['site_id'] ) ? array_map( 'intval', wp_unslash( $_POST['site_id'] ) ) : '';
-				$email_addresses      = isset( $_POST['email_address'] ) ? array_map( 'sanitize_email', wp_unslash( $_POST['email_address'] ), 'email' ) : '';
+				$email_addresses      = isset( $_POST['email_address'] ) ? array_map( 'sanitize_email', wp_unslash( $_POST['email_address'] ) ) : '';
 				$names                = isset( $_POST['name'] ) ? array_map( 'sanitize_text_field', wp_unslash( $_POST['name'] ) ) : '';
 				$reply_tos            = isset( $_POST['reply_to'] ) ? array_map( 'sanitize_email', wp_unslash( $_POST['reply_to'] ) ) : '';
 				$enable_on_child_site = isset( $_POST['enable_on_child_site'] ) ? array_map( 'sanitize_text_field', wp_unslash( $_POST['enable_on_child_site'] ) ) : '';
@@ -221,7 +221,7 @@ if ( ! class_exists( 'Post_SMTP_MWP_Page' ) ) :
 
 				update_option( 'post_smtp_mainwp_sites', $sites );
 
-				wp_safe_redirect( admin_url( 'admin.php?page=Extensions-Mainwp-Post-Smtp-Extension' ) );
+				wp_safe_redirect( admin_url( 'admin.php?page=Extensions-Post-Smtp-For-Mainwp' ) );
 
 			}
 		}
