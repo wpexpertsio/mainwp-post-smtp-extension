@@ -65,11 +65,29 @@ jQuery( document ).ready(
 			'click',
 			'.enable-on-child-site',
 			function ( e ) {
+				
+				var _checked = jQuery('.enable-on-child-site:checked').length - 1;
+				var isChecked = jQuery( this ).is( ':checked' ) ? 1 : 0;
+
+				if( PSMainWP.sites != false && isChecked && _checked >= PSMainWP.sites ) {
+					
+					jQuery( '#mainwp-top-header' ).append( 
+						`<div class="ui segment" style="padding-top:0px;padding-bottom:0px;margin-bottom:0px;background: transparent!important">
+							<div id="mainwp-dashboard-info-box"></div>
+							<div id="mainwp-message-zone" class="ui message" style="display:none;"></div>
+							<div class="ui info message">
+								<i class="close icon mainwp-notice-dismiss" notice-id="widgets"></i>To continue using Post SMTP Pro on all your child sites, you need to upgrade your license to a higher plan. <b>Your current license quota is limited to ${PSMainWP.sites} sites.</b> Exclusive Offer for MainWP users: <a href="https://postmansmtp.com/pricing/?utm_source=mainwp_dash&utm_medium=dash_notice&utm_campaign=mainwp_20discount" target="_blank">Avail discount on Lifetime Plans</a>🎉.
+							</div>
+						</div>` 
+					);
+					
+					return false;
+					
+				}
 
 				var clickedElement = jQuery( this );
 				clickedElement.closest( '.title' ).find( 'span.spinner' ).addClass( 'is-active' );
 				var siteID    = jQuery( this ).data( 'id' );
-				var isChecked = jQuery( this ).is( ':checked' ) ? 1 : 0;
 
 				jQuery.ajax(
 					{

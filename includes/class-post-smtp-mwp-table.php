@@ -44,15 +44,23 @@ if ( ! class_exists( 'Post_SMTP_MWP_Table' ) ) :
 		public function admin_enqueue_scripts() {
 
 			wp_enqueue_script( 'post-smtp-mainwp', plugin_dir_url( __DIR__ ) . 'assets/js/admin.js', array(), '1.0.0', true );
+			
+			$localize = array(
+				'childSites' 	=> $this->get_sites(),
+				'mainSite'   	=> get_bloginfo( 'name' ) ? get_bloginfo( 'name' ) : __( 'Main Site', 'post-smtp' ),
+				'allSites'   	=> __( 'All Sites', 'post-smtp' )
+			);
+			
+			$validation = new Post_SMTP_MWP_Validation();
+			$localize['sites'] = $validation->get_quota();
+			
+			// TODO: Remove this
+			$localize['sites'] = 3; 
 
 			wp_localize_script(
 				'post-smtp-mainwp',
 				'PSMainWP',
-				array(
-					'childSites' => $this->get_sites(),
-					'mainSite'   => get_bloginfo( 'name' ) ? get_bloginfo( 'name' ) : __( 'Main Site', 'post-smtp' ),
-					'allSites'   => __( 'All Sites', 'post-smtp' ),
-				),
+				$localize,
 			);
 		}
 

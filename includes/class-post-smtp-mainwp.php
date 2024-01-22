@@ -160,6 +160,7 @@ if ( ! class_exists( 'Post_SMTP_MainWP' ) ) :
 			include_once 'rest-api/v1/class-post-smtp-mwp-rest-api.php';
 			include_once 'class-post-smtp-mwp-page.php';
 			include_once 'class-post-smtp-mwp-table.php';
+			include_once 'class-post-smtp-mwp-validation.php';
 		}
 	}
 
