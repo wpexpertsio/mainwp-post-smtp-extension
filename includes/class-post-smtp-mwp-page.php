@@ -254,7 +254,7 @@ if ( ! class_exists( 'Post_SMTP_MWP_Page' ) ) :
 		 * @version 1.0.0
 		 */
 		public function request_child() {
-
+			
 			if ( isset( $_POST['action'] )
 				&& 'post-smtp-request-mwp-child' === $_POST['action']
 				&& isset( $_POST['security'] )
@@ -275,6 +275,20 @@ if ( ! class_exists( 'Post_SMTP_MWP_Page' ) ) :
 				$text          = 'enable_post_smtp' === $what ? 'Enabling' : 'Disabling';
 				$api_key       = md5( $website->pubkey );
 				$site_url      = $website->url;
+				$validation    = new Post_SMTP_MWP_Validation();
+				$quota         = $validation->get_quota();
+				$sites_count   = get_option( 'post_smtp_mainwp_active_sites_count' );
+				
+				if( $what == 'enable_post_smtp' && $sites_count && $sites_count >= $quota ) {
+					
+					wp_send_json_success(
+						array(
+							'message' => 'QUOTA_EXCEED'
+						),
+						403
+					);
+					
+				}
 
 				try {
 
@@ -294,11 +308,26 @@ if ( ! class_exists( 'Post_SMTP_MWP_Page' ) ) :
 
 					if ( $response && ! isset( $response['error'] ) ) {
 
-								$sites                                     = get_option( 'post_smtp_mainwp_sites' );
-								$sites                                     = $sites ? $sites : array();
-								$sites[ $site_id ]['enable_on_child_site'] = $status ? 1 : '';
-
-								update_option( 'post_smtp_mainwp_sites', $sites );
+							$sites                                     = get_option( 'post_smtp_mainwp_sites' );
+							$sites                                     = $sites ? $sites : array();
+							$sites[ $site_id ]['enable_on_child_site'] = $status ? 1 : '';
+						
+							if( $what == 'enable_post_smtp' ) {
+								if( $sites_count ) {
+									$sites_count++;
+								}
+								else {
+									$sites_count = 1;
+								} 
+							}
+							if( $what == 'disable_post_smtp' ) {
+								if( $sites_count ) {
+									$sites_count--;
+								}
+							}
+						
+							update_option( 'post_smtp_mainwp_active_sites_count', $sites_count );
+							update_option( 'post_smtp_mainwp_sites', $sites );
 
 							wp_send_json_success(
 								array(),

@@ -68,19 +68,14 @@ jQuery( document ).ready(
 				
 				var _checked = jQuery('.enable-on-child-site:checked').length - 1;
 				var isChecked = jQuery( this ).is( ':checked' ) ? 1 : 0;
+				var quotaMessage = `<div class="ui segment" style="padding-top:0px;padding-bottom:0px;margin-bottom:0px;background: transparent!important"><div id="mainwp-dashboard-info-box"></div><div id="mainwp-message-zone" class="ui message" style="display:none;"></div><div class="ui info message"><i class="close icon mainwp-notice-dismiss" notice-id="widgets"></i>To continue using Post SMTP Pro on all your child sites, you need to upgrade your license to a higher plan. <b>Your current license quota is limited to ${PSMainWP.sites} sites.</b> Exclusive Offer for MainWP users: <a href="https://postmansmtp.com/pricing/?utm_source=mainwp_dash&utm_medium=dash_notice&utm_campaign=mainwp_20discount" target="_blank">Avail discount on Lifetime Plans</a>🎉.
+							</div>
+						</div>`;
 
 				if( PSMainWP.sites != false && isChecked && _checked >= PSMainWP.sites ) {
 					
-					jQuery( '#mainwp-top-header' ).append( 
-						`<div class="ui segment" style="padding-top:0px;padding-bottom:0px;margin-bottom:0px;background: transparent!important">
-							<div id="mainwp-dashboard-info-box"></div>
-							<div id="mainwp-message-zone" class="ui message" style="display:none;"></div>
-							<div class="ui info message">
-								<i class="close icon mainwp-notice-dismiss" notice-id="widgets"></i>To continue using Post SMTP Pro on all your child sites, you need to upgrade your license to a higher plan. <b>Your current license quota is limited to ${PSMainWP.sites} sites.</b> Exclusive Offer for MainWP users: <a href="https://postmansmtp.com/pricing/?utm_source=mainwp_dash&utm_medium=dash_notice&utm_campaign=mainwp_20discount" target="_blank">Avail discount on Lifetime Plans</a>🎉.
-							</div>
-						</div>` 
-					);
-					
+					jQuery( '#mainwp-top-header' ).append( quotaMessage );
+					document.body.scrollTop = document.documentElement.scrollTop = 0;
 					return false;
 					
 				}
@@ -105,6 +100,15 @@ jQuery( document ).ready(
 						},
 						error: function ( res ) {
 
+							if( res.status === 403 ) {
+								
+								jQuery( '#mainwp-top-header' ).append( quotaMessage );
+								jQuery( clickedElement ).prop( 'checked', false );
+								document.body.scrollTop = document.documentElement.scrollTop = 0;
+								return false;
+								
+							}
+							
 							jQuery( clickedElement ).prop( 'checked', false );
 							jQuery( clickedElement ).closest( '.title' ).find( '.ps-error' ).text( ` ${res.responseJSON.data.message}` );
 

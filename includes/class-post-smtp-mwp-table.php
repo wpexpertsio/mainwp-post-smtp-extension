@@ -53,9 +53,6 @@ if ( ! class_exists( 'Post_SMTP_MWP_Table' ) ) :
 			
 			$validation = new Post_SMTP_MWP_Validation();
 			$localize['sites'] = $validation->get_quota();
-			
-			// TODO: Remove this
-			$localize['sites'] = 3; 
 
 			wp_localize_script(
 				'post-smtp-mainwp',
