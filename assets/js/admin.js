@@ -76,6 +76,11 @@ jQuery( document ).ready(
 					
 					jQuery( '#mainwp-top-header' ).append( quotaMessage );
 					document.body.scrollTop = document.documentElement.scrollTop = 0;
+					jQuery( this ).closest( '.title' ).find( '.ps-error' ).text( 'QUOTA EXCEEDED' );
+					setTimeout(
+					  function() {
+						jQuery( this ).closest( '.title' ).find( '.ps-error' ).text( '' );
+					  }, 10000);
 					return false;
 					
 				}
@@ -105,6 +110,11 @@ jQuery( document ).ready(
 								jQuery( '#mainwp-top-header' ).append( quotaMessage );
 								jQuery( clickedElement ).prop( 'checked', false );
 								document.body.scrollTop = document.documentElement.scrollTop = 0;
+								jQuery( clickedElement ).closest( '.title' ).find( '.ps-error' ).text( 'QUOTA EXCEEDED' );
+								setTimeout(
+								  function() {
+									jQuery( clickedElement ).closest( '.title' ).find( '.ps-error' ).text( '' );
+								  }, 10000);
 								return false;
 								
 							}
