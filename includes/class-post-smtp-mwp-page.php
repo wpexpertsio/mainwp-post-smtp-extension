@@ -25,7 +25,7 @@ if ( ! class_exists( 'Post_SMTP_MWP_Page' ) ) :
 		public function __construct() {
 
 			if ( isset( $_GET['page'] ) // phpcs:disable WordPress.Security.NonceVerification
-				&& ( 'Extensions-Mainwp-Post-Smtp-Extension' === $_GET['page'] // phpcs:disable WordPress.Security.NonceVerification
+				&& ( 'Extensions-Post-Smtp-For-Mainwp' === $_GET['page'] // phpcs:disable WordPress.Security.NonceVerification
 				|| 'postman_email_log' === $_GET['page'] // phpcs:disable WordPress.Security.NonceVerification
 				)
 			) {
