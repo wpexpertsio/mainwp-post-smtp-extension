@@ -3,7 +3,7 @@ Contributors: wpexpertsio
 Tags: mainwp, smtp, wp mail, mainwp child, main wp, manage multiple sites, wordpress smtp, gmail smtp, sendgrid smtp, mail, phpmailer, email
 Requires at least: 4.7
 Tested up to: 6.4.2
-Stable tag: 1.0.1
+Stable tag: 1.0.2
 Requires PHP: 7.0
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
@@ -117,6 +117,10 @@ Our SMTP Configuration Support is your one-stop solution for all your WordPress 
 5. View second child site's Post SMTP dashboard showing that Post SMTP is being used from the MainWP dashboard.
 
 == Changelog ==
+
+= 1.0.2 Feb 07, 2024 =
+
+* Added support for pro add-ons.
 
 = 1.0.1 Jan 01, 2024 =
 

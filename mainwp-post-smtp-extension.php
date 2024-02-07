@@ -3,7 +3,7 @@
  * Plugin Name: MainWP Post SMTP Extension
  * Plugin URI: https://mainwp.com/extension/post-smtp/
  * Description: MainWP Post SMTP extension allows you to manage SMTP of you all your child sites from one central location.
- * Version: 1.0.1
+ * Version: 1.0.2
  * Author: Post SMTP
  * Text Domain: post-smtp
  * Author URI: https://postmansmtp.com
