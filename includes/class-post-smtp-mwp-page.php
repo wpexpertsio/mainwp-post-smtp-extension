@@ -279,7 +279,7 @@ if ( ! class_exists( 'Post_SMTP_MWP_Page' ) ) :
 				$quota         = $validation->get_quota();
 				$sites_count   = get_option( 'post_smtp_mainwp_active_sites_count' );
 				
-				if( $what == 'enable_post_smtp' && $sites_count && $sites_count >= $quota ) {
+				if( $quota && $what == 'enable_post_smtp' && $sites_count && $sites_count >= $quota ) {
 					
 					wp_send_json_success(
 						array(
