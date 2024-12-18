@@ -293,7 +293,7 @@ if ( ! class_exists( 'Post_SMTP_MWP_Page' ) ) :
 				try {
 
 					$response = wp_remote_post(
-						"{$site_url}wp-json/psmwp/v1/activate-from-mainwp",
+						"{$site_url}index.php/wp-json/psmwp/v1/activate-from-mainwp",
 						array(
 							'headers' => array(
 								'API-Key' => $api_key,
